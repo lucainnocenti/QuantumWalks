@@ -1,0 +1,1 @@
+Get["QuantumWalks`QuantumWalks`"];
