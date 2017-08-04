@@ -46,9 +46,9 @@ shiftRightMatrix[dim_Integer] := SparseArray[{
   {#, #} & @ dim
 ];
 
-controlledShiftMatrix[numberOfSteps_Integer] := Plus[
-  KP[shiftLeftMatrix[numberOfSteps + 1], {{1, 0}, {0, 0}}],
-  KP[shiftRightMatrix[numberOfSteps + 1], {{0, 0}, {0, 1}}]
+controlledShiftMatrix[numberOfSites_Integer] := Plus[
+  KP[shiftLeftMatrix[numberOfSites], {{1, 0}, {0, 0}}],
+  KP[shiftRightMatrix[numberOfSites], {{0, 0}, {0, 1}}]
 ];
 
 
@@ -103,29 +103,48 @@ QWComputeCoinFromState[state_List] := QWComputeCoinFromState @ Partition[state, 
 
 (* Functions handling forward time-evolution of the walker *)
 
-QWStepEvolutionMatrix[numberOfSteps_Integer, coinMatrix_?UnitaryMatrixQ] := Dot[
-  controlledShiftMatrix @ numberOfSteps,
-  KP[IdentityMatrix[numberOfSteps + 1], coinMatrix]
+QWStepEvolutionMatrix[numberOfSites_Integer, coinMatrix_?MatrixQ] := Dot[
+  controlledShiftMatrix @ numberOfSites,
+  KP[IdentityMatrix[numberOfSites], coinMatrix]
 ];
 
-QWStepEvolutionMatrix[numberOfSteps_Integer, coinParameters_List] := Dot[
-  controlledShiftMatrix @ numberOfSteps,
-  KP[IdentityMatrix[numberOfSteps + 1], QWCoinParametersToMatrix @ coinParameters]
+QWStepEvolutionMatrix[
+  numberOfSites_Integer,
+  coinParameters_ 
+] := Dot[
+  controlledShiftMatrix @ numberOfSites,
+  KP[IdentityMatrix[numberOfSites],
+    QWCoinParametersToMatrix @ coinParameters
+  ]
 ];
 
 
-QWManyStepsEvolutionMatrix[numberOfSteps_, coinParameters_List] := Fold[
-  Dot[QWStepEvolutionMatrix[numberOfSteps, #2], #1] &,
-  IdentityMatrix[2 * (numberOfSteps + 1)],
+QWManyStepsEvolutionMatrix[numberOfSites_, coinParameters_, 1] := QWStepEvolutionMatrix[
+  numberOfSites, coinParameters
+];
+
+QWManyStepsEvolutionMatrix[numberOfSites_Integer, coinParameters_List, _] := Fold[
+  Dot[QWStepEvolutionMatrix[numberOfSites, #2], #1] &,
+  IdentityMatrix[2 * (numberOfSites)],
   coinParameters
 ];
 
 
-QWEvolve[initialCoinState : {_, _}, coinParameters : {{__}..}] := Dot[
-  QWManyStepsEvolutionMatrix[Length @ coinParameters, coinParameters],
-  SparseArray[
-    {1 -> initialCoinState[[1]], 2 -> initialCoinState[[2]]},
-    2 * (Length @ coinParameters + 1)
+QWEvolve[
+  initialCoinState : {_, _}, coinParameters_List,
+  numberOfSteps_Integer : 0
+] := With[{
+    nSteps = If[numberOfSteps == 0,
+      Length @ coinParameters,
+      numberOfSteps
+    ]
+  },
+  Dot[
+    QWManyStepsEvolutionMatrix[nSteps + 1, coinParameters, nSteps],
+    SparseArray[
+      {1 -> initialCoinState[[1]], 2 -> initialCoinState[[2]]},
+      2 * (nSteps + 1)
+    ]
   ]
 ];
 
