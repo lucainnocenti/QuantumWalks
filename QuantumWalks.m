@@ -119,34 +119,52 @@ QWStepEvolutionMatrix[
 ];
 
 
-QWManyStepsEvolutionMatrix[numberOfSites_, coinParameters_, 1] := QWStepEvolutionMatrix[
+(* QWManyStepsEvolutionMatrix[numberOfSites_, coinParameters_, 1] := QWStepEvolutionMatrix[
   numberOfSites, coinParameters
-];
+]; *)
 
-QWManyStepsEvolutionMatrix[numberOfSites_Integer, coinParameters_List, _] := Fold[
+QWManyStepsEvolutionMatrix[numberOfSites_Integer, coinParameters:{__List}, ___] := Fold[
   Dot[QWStepEvolutionMatrix[numberOfSites, #2], #1] &,
   IdentityMatrix[2 * (numberOfSites)],
   coinParameters
 ];
 
 
+Options[QWEvolve] = {"SimulationMethod" -> "EvolutionMatrix"};
 QWEvolve[
-  initialCoinState : {_, _}, coinParameters_List,
-  numberOfSteps_Integer : 0
+  initialCoinState : {_, _}, coinParameters_List, numberOfSteps_Integer : 0,
+  OptionsPattern[]
 ] := With[{
     nSteps = If[numberOfSteps == 0,
       Length @ coinParameters,
       numberOfSteps
     ]
-  },
-  Dot[
-    QWManyStepsEvolutionMatrix[nSteps + 1, coinParameters, nSteps],
-    SparseArray[
+  }, With[{
+    initialState = SparseArray[
       {1 -> initialCoinState[[1]], 2 -> initialCoinState[[2]]},
       2 * (nSteps + 1)
     ]
+  },
+  Which[
+    (* Two simulation methods are implemented:
+       1) With "EvolutionMatrix" we compute the full evolution matrix,
+          and then multiply it with the initial state. This method is
+          inefficient for large numbers of steps.
+       2) In "StepByStep" we instead repeatedly multiply the running
+          state by the appropriate one-step evolution matrix. *)
+    OptionValue @ "SimulationMethod" == "EvolutionMatrix",
+    Dot[
+      QWManyStepsEvolutionMatrix[nSteps + 1, coinParameters, nSteps],
+      initialState
+    ],
+    OptionValue @ "SimulationMethod" == "StepByStep",
+    Fold[
+      Dot[QWStepEvolutionMatrix[nSteps + 1, #2], #1] &,
+      initialState,
+      coinParameters
+    ]
   ]
-];
+]];
 
 
 (* Functions handling backtracing of the walker evolution from a final state *)
