@@ -26,6 +26,11 @@ This needs to be done only once.
 
 Once the package is installed, it needs to be imported with ``Needs["QuantumWalks`"]``.
 
+Alternatively, the package can be imported directly from GitHub without installing it, using
+
+    Get["https://raw.githubusercontent.com/lucainnocenti/QuantumWalks/master/QuantumWalks.m"];
+
+
 ## Usage
 
 See [`QuantumWalksDemonstrations.nb`](./QuantumWalksDemonstrations.nb) for some usage examples.
