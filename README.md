@@ -20,7 +20,6 @@ Generate QW step matrix from a coin operation:
 QWStepEvolutionMatrix[3, HadamardMatrix[2]] // MatrixForm
 ```
 
-
-
+<img src="../media/snippet_QWStepEvolutionMatrix.png?raw=true" width="600">
 
 See [`QuantumWalksDemonstrations.nb`](./QuantumWalksDemonstrations.nb) for other usage examples.
