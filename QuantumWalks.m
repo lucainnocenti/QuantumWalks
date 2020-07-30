@@ -10,6 +10,7 @@ BeginPackage["QuantumWalks`", {"QM`"}];
 Unprotect @@ Names["QuantumWalks`*"];
 ClearAll @@ Names["QuantumWalks`*"];
 
+QWCoinMatrix;
 QWCoinMatrixToParameters;
 QWCoinParametersToMatrix;
 
@@ -108,6 +109,10 @@ QWStepEvolutionMatrix[numberOfSites_Integer, coinMatrix_?MatrixQ] := Dot[
   KP[IdentityMatrix[numberOfSites], coinMatrix]
 ];
 
+QWStepEvolutionMatrix[numberOfSites_Integer, coinMatrix_QWCoinMatrix] := (
+  QWStepEvolutionMatrix[numberOfSites, First @ coinMatrix]
+);
+
 QWStepEvolutionMatrix[
   numberOfSites_Integer,
   coinParameters_ 
@@ -123,7 +128,7 @@ QWStepEvolutionMatrix[
   numberOfSites, coinParameters
 ]; *)
 
-QWManyStepsEvolutionMatrix[numberOfSites_Integer, coinParameters:{__List}, ___] := Fold[
+QWManyStepsEvolutionMatrix[numberOfSites_Integer, coinParameters_List, ___] := Fold[
   Dot[QWStepEvolutionMatrix[numberOfSites, #2], #1] &,
   IdentityMatrix[2 * (numberOfSites)],
   coinParameters
