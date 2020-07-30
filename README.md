@@ -15,15 +15,24 @@ Alternatively, the package can be imported directly from GitHub without installi
 
 ## Usage
 
-### Generate QW step matrix from a coin operation:
+### Generate QW step matrices from coin operations:
 ```Mathematica
 QWStepEvolutionMatrix[3, HadamardMatrix[2]] // MatrixForm
 ```
 
-<img src="../media/snippet_QWStepEvolutionMatrix.png?raw=true" width="600">
+<img src="../media/snippet_QWStepEvolutionMatrix.png?raw=true" height="200">
 
 The function `QWCoinMatrix` can also be used as a transparent wrapper to clarify when an input should be understood as the matrix representing a coin operation.
 *E.g.* in the example above we can replace `HadamardMatrix[2]` with `QWCoinMatrix[HadamardMatrix[2]]`.
+
+We can get the evolution matrix corresponding to multiple QW steps using `QWManyStepsEvolutionMatrix`. For example, to compute the matrix describing *two* steps each one using a Hadamard coin operation, with a total number of sites in the underlying space of 3, we can use:
+```Mathematica
+QWManyStepsEvolutionMatrix[3, 
+    Table[QWCoinMatrix[HadamardMatrix@2], 2]
+] // MatrixForm
+```
+
+<img src="../media/snippet_QWManyStepsEvolutionMatrix.png?raw=true" height="200">
 
 
 
