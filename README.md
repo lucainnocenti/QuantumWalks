@@ -34,6 +34,18 @@ QWManyStepsEvolutionMatrix[3,
 
 <img src="../media/snippet_QWManyStepsEvolutionMatrix.png?raw=true" height="200">
 
+To evolve an input state on a fixed single walker position, and initial coin state either H or V, we can use
+
+```Mathematica
+numberOfSteps = 4;
+evolutionMatrix = QWManyStepsEvolutionMatrix[
+    numberOfSteps + 1,
+    Table[QWCoinMatrix[RandomUnitary@2], numberOfSteps]
+];
+outputState1Up = evolutionMatrix[[All, 1]] // Chop (* output entering with |1,H> *)
+outputState1Down = evolutionMatrix[[All, 2]] // Chop (* output entering with with |1,V> *)
+```
+Note that this requires the function `RandomUnitary` to generate random unitary evolution. This is defined *e.g.* in [QM](https://github.com/lucainnocenti/QM).
 
 
 See [`QuantumWalksDemonstrations.nb`](./QuantumWalksDemonstrations.nb) for other usage examples.
